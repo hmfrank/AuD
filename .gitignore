@@ -1,5 +1,11 @@
+# exclude everything
 /*
 
+# include only the stuff we need
 !.gitignore
 !CMakeLists.txt
-!main.cpp
+!Makefile
+!src/
+!src/*
+!tst/
+!tst/*
