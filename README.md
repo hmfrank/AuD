@@ -6,12 +6,14 @@ This is a C library that contains various implementations of interesting algorit
 
 ## Makefile targets
 ### `make all`
-Since this is a library, `make all` only creates the executable for the unit tests. The output file is called `aud`.
+Since this is a library, `make all` only creates the executable for the unit tests. The output file is called _aud_.
 
 ### `make doc`
 Creates html documentation. The main page is located in _doc/html/index.html_.
 
-**NOTE:** [_Doxygen_](http://www.stack.nl/~dimitri/doxygen/) has to be installed on your system.
+**NOTE:** [_Doxygen_](http://www.stack.nl/~dimitri/doxygen/) has to be installed on your system. If you want to see
+call- and include-graphs in the generated documentation, you also have to have [_Graphviz_](http://www.graphviz.org/)
+installed.
 
 ### `make clean`
 Deletes all build files (object files and executables).
