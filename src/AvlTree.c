@@ -9,7 +9,7 @@
 #include "AvlTree.h"
 
 /**
- * This function is used as comparrison function, is `avlInit()` is passed `NULL` for the argument `compare`.
+ * This function is used as comparrison function, if `avlInit()` is passed `NULL` for the argument `compare`.
  *
  * @return 0
  */

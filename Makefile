@@ -2,10 +2,12 @@
 EXE = aud
 
 OBJDIR = bin/
+DOXDIR = doc/
 LIBDIR = lib/
 SRCDIR = src/
 TSTDIR = tst/
 
+INC = $(wildcard $(SRCDIR)*.h)
 SRC = $(wildcard $(SRCDIR)*.c) $(wildcard $(TSTDIR)*.cpp)
 OBJ = $(filter %.o, $(SRC:$(SRCDIR)%.c=$(OBJDIR)%.o)) \
       $(filter %.opp, $(SRC:$(TSTDIR)%.cpp=$(OBJDIR)%.opp))
@@ -31,7 +33,12 @@ clean:
 	rm -rf $(EXE) $(OBJDIR)
 
 destroy: clean
-	rm -rf $(LIBDIR)
+	rm -rf $(LIBDIR) $(DOCDIR)
+
+
+# create documentation
+doc: $(SRC) $(INC) | $(DOCDIR)
+        doxygen
 
 # link object files
 $(EXE): $(OBJ)
@@ -56,7 +63,7 @@ $(OBJDIR)%.dpp: $(TSTDIR)%.cpp | $(OBJDIR)
 	$(CXX) -MM -MG $< -MT $(subst .dpp,.opp,$@) | sed 's/ /\\\n/g' | sed 's/^..\//src\/..\//g' | sed 's/.*\/\.\.\///g' > $@ # regex magic
 
 # folders
-$(OBJDIR) $(LIBDIR):
+$(OBJDIR) $(LIBDIR) $(DOCDIR):
 	mkdir $@
 
 # catch single header file

@@ -50,7 +50,7 @@ struct AvlNode
  * implementation every element occures at most once in the tree). Searching, inserting and deleting elements can be
  * done in logarithmic time (with respect to the number of elements stored in the tree).
  *
- * You should always call `avlReset()` before and after you use an AVL tree.
+ * You should always call `avlInit()` before and `avlFree()` after using an AVL tree.
  *
  * Methods of this struct start with "avl".
  *

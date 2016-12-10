@@ -5,6 +5,7 @@
 !.gitignore
 !CMakeLists.txt
 !Makefile
+!README.md
 !src/
 !src/*
 !tst/
