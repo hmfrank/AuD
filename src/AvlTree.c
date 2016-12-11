@@ -318,6 +318,7 @@ void avlInit(struct AvlTree *this, int (*compare)(const void *, const void *))
 		return;
 
 	this->root = NULL;
+	this->count = 0;
 	this->compare = compare == NULL ? &dummyCompare : compare;
 }
 
@@ -346,6 +347,8 @@ int avlInsert(struct AvlTree *this, void *item)
 
 	if (!created)
 		return 0;
+
+	this->count++;
 
 	// fix balance
 	node = nodeUpdateBalance(node);

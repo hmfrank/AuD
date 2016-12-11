@@ -38,7 +38,7 @@ destroy: clean
 
 # create documentation
 doc: $(SRC) $(INC) | $(DOCDIR)
-        doxygen
+	doxygen
 
 # link object files
 $(EXE): $(OBJ)

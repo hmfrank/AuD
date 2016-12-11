@@ -73,6 +73,11 @@ struct AvlTree
 	int (*compare)(const void *, const void *);
 
 	/**
+	 * The number of nodes in the tree.
+	 */
+	size_t count;
+
+	/**
 	 * Points to the root node of the tree, or `NULL` if the tree is empty.
 	 */
 	struct AvlNode *root;
