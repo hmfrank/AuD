@@ -37,7 +37,7 @@ destroy: clean
 
 
 # create documentation
-doc: $(SRC) $(INC) | $(DOCDIR)
+doc: $(SRC) $(INC) Doxyfile | $(DOCDIR)
 	doxygen
 
 # link object files
