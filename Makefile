@@ -2,7 +2,7 @@
 EXE = aud
 
 OBJDIR = bin/
-DOXDIR = doc/
+DOCDIR = doc/
 LIBDIR = lib/
 SRCDIR = src/
 TSTDIR = tst/
