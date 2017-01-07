@@ -3,8 +3,6 @@
 
 #include <stdint.h>
 
-// TODO: write unit test
-
 /**
  * @file HyperLogLog.h
  *
@@ -133,7 +131,7 @@ struct HyperLogLog
  *
  *  @see HyperLogLog
  */
-int hllInit(struct HyperLogLog *_this, unsigned char m, unsigned char k, void (*hash)(const void *, byte *));
+int hllInit(struct HyperLogLog *_this, unsigned char m, unsigned char k, void (*hash)(const void *, size_t n, byte *));
 
 /**
  * Frees all the memory used by a HyperLogLog structure. You can not use the struct after you passed it to this function.
@@ -157,7 +155,7 @@ void hllAdd(struct HyperLogLog *_this, void *item);
  * Counts the number of unique items added to the set.
  *
  * @param _this Points the HyperLogLog structure, that counts the set.
- * @return
+ * @return An approximation of the number of unique elements in the set, or NaN on error.
  */
 double hllCount(struct HyperLogLog *_this);
 
