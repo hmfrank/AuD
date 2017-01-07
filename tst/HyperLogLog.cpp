@@ -6,13 +6,15 @@ extern "C"
 #include "../src/HyperLogLog.h"
 }
 
-void hash(const void *item, size_t h, byte *buffer)
+void hash(void *item, size_t h, void *buffer)
 {
+	char *char_ptr = (char*)buffer;
+
 	srand((unsigned)item);
 
 	for (size_t i = 0; i < h; i++)
 	{
-		buffer[i] = (byte)rand();
+		char_ptr[i] = (char)rand();
 	}
 }
 

@@ -9,8 +9,6 @@
  * Contains the struct definition of 'struct HyperLogLog` as well as related function prototypes.
  */
 
-typedef uint8_t byte;
-
 /**
  * Specifies the bucket size of a HyperLogLog-Set in bits.
  *
@@ -61,8 +59,6 @@ enum HyperLogLogBucketSize
  *
  * \f$b = m \cdot 2^k\f$ (memory usage in bits)
  *
- * \f$h = k + 2^m - 1\f$ (hash size in bits)
- *
  * #### If you don't wanna read, skip to this section.
  *
  * In case you are totally confused now, choose \f$m = 6\f$ and \f$k = 11\f$. This will probably work for most applications.
@@ -101,16 +97,14 @@ struct HyperLogLog
 	 *
 	 * @param item: The item that gets added to the set.
 	 * @param h: How many hash bytes the function shall generate.
-	 * The number passed depends on the \f$m\f$ and \f$k\f$ values of the struct.<br/>
-	 * \f$h = \lceil\frac{k + 2^m - 1}{8}\rceil\f$.
 	 * @param buffer: points the buffer to store the hash in.
 	 */
-	void (*hash)(const void *item, size_t h, byte *buffer);
+	void (*hash)(void *item, size_t h, void *buffer);
 
 	/**
-	 * Points to the array of buckets.
+	 * Points to the actual data.
 	 */
-	byte *buckets;
+	void *blocks;
 };
 
 /**
@@ -124,14 +118,14 @@ struct HyperLogLog
  * @return status code with the following meanings:<br/>
  *  * 0 = success
  *  * 1 = invalid argument `_this`
- *  * 2 = invalid argument `bucket_size`
+ *  * 2 = invalid argument `m`
  *  * 3 = invalid argument `k`
  *  * 4 = invalid argument `hash`
  *  * -1 = malloc error
  *
  *  @see HyperLogLog
  */
-int hllInit(struct HyperLogLog *_this, unsigned char m, unsigned char k, void (*hash)(const void *, size_t n, byte *));
+int hllInit(struct HyperLogLog *_this, unsigned char m, unsigned char k, void (*hash)(void*, size_t, void*));
 
 /**
  * Frees all the memory used by a HyperLogLog structure. You can not use the struct after you passed it to this function.

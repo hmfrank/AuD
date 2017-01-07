@@ -16,7 +16,7 @@ DEP = $(filter %.d, $(SRC:$(SRCDIR)%.c=$(OBJDIR)%.d)) \
 
 # C compiler and linker flags
 CC = gcc
-CFLAGS = -std=c99 -Wall -Wextra -Werror
+CFLAGS = -std=c99 -mbmi -Wall -Wextra -Werror
 LDFLAGS =
 
 # C++ compiler and linker flags
