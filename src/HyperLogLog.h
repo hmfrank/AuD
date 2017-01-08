@@ -10,11 +10,11 @@
  */
 
 /**
- * Specifies the bucket size of a HyperLogLog-Set in bits.
+ * Specifies the register size of a HyperLogLog-Set in bits.
  *
  * @see struct HyperLogLog
  */
-enum HyperLogLogBucketSize
+enum HyperLogLogRegisterSize
 {
 	SMALL = 4,
 	MEDIUM = 6,
@@ -30,38 +30,38 @@ enum HyperLogLogBucketSize
  * If you're interested in how it _works_, take a look at the Wikipedia articles or at the source code.
  *
  * There are two main parameters that influence how the counter performs:
- * the **bucket size** \f$m\f$ (in bits) and the **number of buckets** \f$n\f$, with
- * \f$m \in \{4, 6, 8\}\f$ and
- * \f$n = 2^k, k \in \mathbb{N}\f$ (due to implementation optimizations).
- * Both, \f$m\f$ and \f$k\f$, have to be chosen, when creating a new empty counter using `hllInit()`.
+ * the **register size** \f$r\f$ (in bits) and the **number of registers** \f$m\f$, with
+ * \f$r \in \{4, 6, 8\}\f$ and
+ * \f$m = 2^b, b \in \mathbb{N}\f$ (due to implementation optimizations).
+ * Both, \f$r\f$ and \f$b\f$, have to be chosen, when creating a new empty counter using `hllInit()`.
  *
- * #### Choosing \f$m\f$ and \f$k\f$
+ * #### Choosing \f$r\f$ and \f$b\f$
  *
- * \f$m\f$ has a huge influence on the maximum number of items \f$c\f$ in the set.
- * Specifically \f$c = 2^{k + 2^m - 1}\f$.
+ * \f$r\f$ has a huge influence on the maximum number of items \f$c\f$ in the set.
+ * Specifically \f$c = 2^{b + 2^r - 2}\f$.
  * This doesn't stop you from adding more than \f$c\f$ items, but if you do, the counting result can get very inaccurate.<br/>
- * As a rule of thumb, if you want to count in the range of millions and billions, \f$m = 4\f$ should be fine.
- * \f$m = 6\f$ is good, if you stay below \f$10^{21}\f$.
- * \f$m = 8\f$ is for virtually infinitely expandable sets (calculate it through if you're curious).
+ * As a rule of thumb, if you want to count in the range of millions and billions, \f$r = 4\f$ should be fine.
+ * \f$r = 6\f$ is good, if you stay below \f$10^{21}\f$.
+ * \f$r = 8\f$ is for virtually infinitely expandable sets (calculate it through if you're curious).
  *
- * The other parameter, \f$k\f$, influences how much the counted value might deviate from the actual number of items
+ * The other parameter, \f$b\f$, influences how much the counted value might deviate from the actual number of items
  * added, as well as how much memory is needed.
- * The error can be calculated with \f$\frac{1.04}{\sqrt{2^k}}\f$.<br/>
- * The memory used can be calculated with \f$ m \cdot 2^k bits\f$
+ * The typical relative error can be calculated with \f$\frac{1.04}{\sqrt{2^b}}\f$.<br/>
+ * The memory used can be calculated with \f$ r \cdot 2^b bit\f$
  *
  * #### Formular Summary
  *
- * \f$2^k\f$ buckets of \f$m\f$ bits each.
+ * \f$2^b\f$ registers of \f$r\f$ bits each.
  *
- * \f$c = 2^{k + 2^m - 1}\f$ (maximum cardinality)
+ * \f$c = 2^{b + 2^r - 2}\f$ (maximum cardinality)
  *
- * \f$e = \frac{1.04}{\sqrt{2^k}}\f$ (error)
+ * \f$e = \frac{1.04}{\sqrt{2^b}}\f$ (error)
  *
- * \f$b = m \cdot 2^k\f$ (memory usage in bits)
+ * \f$u = r \cdot 2^b bit\f$ (memory usage)
  *
  * #### If you don't wanna read, skip to this section.
  *
- * In case you are totally confused now, choose \f$m = 6\f$ and \f$k = 11\f$. This will probably work for most applications.
+ * In case you are totally confused now, choose \f$r = 6\f$ and \f$b = 11\f$. This will probably work for most applications.
  * You can count up to \f$10^{22}\f$ unique items, while using about 1.5KB of memory and only being about 2.3% off.
  *
  * You should always call `hllInit()` before and `hllFree()` after using this structure.
@@ -80,14 +80,14 @@ enum HyperLogLogBucketSize
 struct HyperLogLog
 {
 	/**
-	 * The bucket size used. Only values of `enum HyperLogLogBucketSize` are accepted.
+	 * The register size used. Only values of `enum HyperLogLogRegisterSize` are accepted.
 	 */
-	unsigned char m;
+	unsigned char r;
 
 	/**
-	 * The number of bits needed to index one bucket. In other words, the number of buckets is \f$2^k\f$.
+	 * The number of bits needed to index one register. In other words, the number of registers is \f$2^b\f$.
 	 */
-	unsigned char k;
+	unsigned char b;
 
 	/**
 	 * Pointer to a hash function that is applied on the items of the set. This function is called every time an item is
@@ -104,13 +104,13 @@ struct HyperLogLog
 	/**
 	 * Points to the actual data.
 	 */
-	void *blocks;
+	void *data;
 };
 
 /**
  * Initializes an empty HyperLogLog.
  *
- * `m` and `k` are the parameters I talked about in the description of `struct HyperLogLog`.
+ * `r` and `b` are the parameters I talked about in the description of `struct HyperLogLog`.
  * If you don't know what to them, take a look at that description.
  *
  * @param _this Points to the set to be initialized.
@@ -118,14 +118,14 @@ struct HyperLogLog
  * @return status code with the following meanings:<br/>
  *  * 0 = success
  *  * 1 = invalid argument `_this`
- *  * 2 = invalid argument `m`
- *  * 3 = invalid argument `k`
+ *  * 2 = invalid argument `r`
+ *  * 3 = invalid argument `b`
  *  * 4 = invalid argument `hash`
  *  * -1 = malloc error
  *
  *  @see HyperLogLog
  */
-int hllInit(struct HyperLogLog *_this, unsigned char m, unsigned char k, void (*hash)(void*, size_t, void*));
+int hllInit(struct HyperLogLog *_this, unsigned char r, unsigned char b, void (*hash)(void*, size_t, void*));
 
 /**
  * Frees all the memory used by a HyperLogLog structure. You can not use the struct after you passed it to this function.
