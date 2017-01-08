@@ -17,12 +17,12 @@ DEP = $(filter %.d, $(SRC:$(SRCDIR)%.c=$(OBJDIR)%.d)) \
 # C compiler and linker flags
 CC = gcc
 CFLAGS = -std=c99 -mbmi -Wall -Wextra -Werror
-LDFLAGS =
+LDFLAGS = -lm
 
 # C++ compiler and linker flags
 CXX = g++
 CXXFLAGS = -std=c++11 -Wall -Wextra -Werror
-LXXFLAGS =
+LXXFLAGS = -lm
 
 .PHONY: all clean destroy
 
