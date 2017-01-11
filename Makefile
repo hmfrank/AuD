@@ -1,47 +1,55 @@
-# main program executable
-EXE = aud
+OUT = libaud.a
+EXE = utest
 
-OBJDIR = bin/
-DOXDIR = doc/
-LIBDIR = lib/
 SRCDIR = src/
+INCDIR = inc/
+OBJDIR = bin/
 TSTDIR = tst/
+DOCDIR = doc/
+LIBDIR = lib/
 
-INC = $(wildcard $(SRCDIR)*.h)
-SRC = $(wildcard $(SRCDIR)*.c) $(wildcard $(TSTDIR)*.cpp)
-OBJ = $(filter %.o, $(SRC:$(SRCDIR)%.c=$(OBJDIR)%.o)) \
-      $(filter %.opp, $(SRC:$(TSTDIR)%.cpp=$(OBJDIR)%.opp))
-DEP = $(filter %.d, $(SRC:$(SRCDIR)%.c=$(OBJDIR)%.d)) \
-      $(filter %.dpp, $(SRC:$(TSTDIR)%.cpp=$(OBJDIR)%.dpp))
+# external sources
+EXT = $(LIBDIR)catch.hpp
 
-# C compiler and linker flags
+# source and object files for library archive
+SRC = $(wildcard $(SRCDIR)*.c)
+OBJ = $(patsubst $(SRCDIR)%.c, $(OBJDIR)%.o, $(SRC))
+
+# source and object files for test executable
+TSRC = $(wildcard $(TSTDIR)*.cpp)
+TOBJ = $(patsubst $(TSTDIR)%.cpp, $(OBJDIR)%.opp, $(TSRC))
+
+DEP  = $(patsubst $(SRCDIR)%.c, $(OBJDIR)%.d, $(SRC)) $(patsubst $(TSTDIR)%.cpp, $(OBJDIR)%.dpp, $(TSRC))
+
+# C compiler flags
 CC = gcc
 CFLAGS = -std=c99 -Wall -Wextra -Werror
-LDFLAGS =
 
 # C++ compiler and linker flags
 CXX = g++
 CXXFLAGS = -std=c++11 -Wall -Wextra -Werror
-LXXFLAGS =
+LXXFLAGS = 
 
-.PHONY: all clean destroy
+.PHONY: all clean destroy doc test
 
-
-all: $(EXE)
+all: $(OUT)
 
 clean:
-	rm -rf $(EXE) $(OBJDIR)
+	rm -rf $(OUT) $(EXE) $(OBJDIR)
 
 destroy: clean
-	rm -rf $(LIBDIR) $(DOCDIR)
+	rm -rf $(DOCDIR) $(LIBDIR)
 
-
-# create documentation
 doc: $(SRC) $(INC) | $(DOCDIR)
 	doxygen
 
-# link object files
-$(EXE): $(OBJ)
+test: $(EXE)
+
+# create archive 
+$(OUT): $(OBJ)
+	ar -cq $@ $(OBJ)
+
+$(EXE): $(TOBJ) $(OUT)
 	$(CXX) $(CXXFLAGS) $^ $(LXXFLAGS) -o $@
 
 # .o file
@@ -55,17 +63,18 @@ $(OBJDIR)%.opp: $(TSTDIR)%.cpp | $(OBJDIR)
 -include $(DEP)
 
 # .d file
-$(OBJDIR)%.d: $(SRCDIR)%.c | $(OBJDIR)
+$(OBJDIR)%.d: $(SRCDIR)%.c $(EXT) | $(OBJDIR)
 	$(CC) -MM $< -MT $(subst .d,.o,$@) -MF $@
 
 # .dpp file
-$(OBJDIR)%.dpp: $(TSTDIR)%.cpp | $(OBJDIR)
-	$(CXX) -MM -MG $< -MT $(subst .dpp,.opp,$@) | sed 's/ /\\\n/g' | sed 's/^..\//src\/..\//g' | sed 's/.*\/\.\.\///g' > $@ # regex magic
+$(OBJDIR)%.dpp: $(TSTDIR)%.cpp $(EXT) | $(OBJDIR)
+	$(CXX) -MM $< -MT $(subst .dpp,.opp,$@) > $@
 
 # folders
-$(OBJDIR) $(LIBDIR) $(DOCDIR):
+$(OBJDIR) $(DOCDIR) $(LIBDIR):
 	mkdir $@
 
-# catch single header file
+# external files
 $(LIBDIR)catch.hpp: | $(LIBDIR)
-	wget "https://raw.githubusercontent.com/philsquared/Catch/master/single_include/catch.hpp" -O $@
+	wget -q "https://raw.githubusercontent.com/philsquared/Catch/master/single_include/catch.hpp" -O $@
+

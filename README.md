@@ -6,7 +6,10 @@ This is a C library that contains various implementations of interesting algorit
 
 ## Makefile targets
 ### `make all`
-Since this is a library, `make all` only creates the executable for the unit tests. The output file is called _aud_.
+Compiles the library into an archive. The output file is called _libaud.a_.
+
+### `make test`
+Creates the unit test executable. The output file is called _utest_.
 
 ### `make doc`
 Creates html documentation. The main page is located in _doc/html/index.html_.

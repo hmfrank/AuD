@@ -2,7 +2,7 @@
 
 extern "C"
 {
-#include "../src/AvlTree.h"
+#include "../inc/AvlTree.h"
 }
 
 int compare(const void *a, const void *b)

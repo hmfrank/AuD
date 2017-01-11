@@ -6,6 +6,8 @@
 !CMakeLists.txt
 !Makefile
 !README.md
+!inc/
+!inc/*
 !src/
 !src/*
 !tst/

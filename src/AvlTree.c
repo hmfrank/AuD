@@ -6,7 +6,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "AvlTree.h"
+#include "../inc/AvlTree.h"
 
 /**
  * This function is used as comparrison function, if `avlInit()` is passed `NULL` for the argument `compare`.
@@ -356,3 +356,4 @@ int avlInsert(struct AvlTree *this, void *item)
 
 	return 1;
 }
+
