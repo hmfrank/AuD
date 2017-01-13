@@ -1,0 +1,42 @@
+ARC = libaud.a
+
+SRCDIR = src/
+OBJDIR = bin/
+
+# source and object files
+SRC = $(wildcard $(SRCDIR)*.c)
+OBJ = $(patsubst $(SRCDIR)%.c, $(OBJDIR)%.o, $(SRC))
+DEP = $(patsubst $(SRCDIR)%.c, $(OBJDIR)%.d, $(SRC))
+
+# C compiler flags
+CC = gcc
+CFLAGS = -std=c99 -Wall -Wextra -Werror
+
+# phony targets
+.PHONY: all clean destroy
+
+all: $(ARC)
+
+clean:
+	rm -rf $(ARC) $(OBJDIR)
+
+destroy: clean
+
+# create archive
+$(ARC): $(OBJ)
+	ar -cq $@ $(OBJ)
+
+# .o file
+$(OBJDIR)%.o: $(SRCDIR)%.c | $(OBJDIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+-include $(DEP)
+
+# .d file
+$(OBJDIR)%.d: $(SRCDIR)%.c | $(OBJDIR)
+	$(CC) -MM $< -MT $(subst .d,.o,$@) -MF $@
+
+# folders
+$(OBJDIR):
+	mkdir $@
+

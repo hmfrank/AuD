@@ -1,80 +1,40 @@
-OUT = libaud.a
-EXE = utest
+ARC = libaud.a
+TST = utest
 
-SRCDIR = src/
 INCDIR = inc/
-OBJDIR = bin/
-TSTDIR = tst/
-DOCDIR = doc/
-LIBDIR = lib/
+SRCDIR = src/
 
-# external sources
-EXT = $(LIBDIR)catch.hpp
-
-# source and object files for library archive
+INC = $(wildcard $(INCDIR)*.h)
 SRC = $(wildcard $(SRCDIR)*.c)
-OBJ = $(patsubst $(SRCDIR)%.c, $(OBJDIR)%.o, $(SRC))
 
-# source and object files for test executable
-TSRC = $(wildcard $(TSTDIR)*.cpp)
-TOBJ = $(patsubst $(TSTDIR)%.cpp, $(OBJDIR)%.opp, $(TSRC))
-
-DEP  = $(patsubst $(SRCDIR)%.c, $(OBJDIR)%.d, $(SRC)) $(patsubst $(TSTDIR)%.cpp, $(OBJDIR)%.dpp, $(TSRC))
-
-# C compiler flags
-CC = gcc
-CFLAGS = -std=c99 -Wall -Wextra -Werror
-
-# C++ compiler and linker flags
-CXX = g++
-CXXFLAGS = -std=c++11 -Wall -Wextra -Werror
-LXXFLAGS = 
-
+# phony targets
 .PHONY: all clean destroy doc test
 
-all: $(OUT)
+all: $(ARC)
 
 clean:
-	rm -rf $(OUT) $(EXE) $(OBJDIR)
+	rm -rf $(ARC) $(TST)
+	$(MAKE) -f MakefileAuD clean
+	$(MAKE) -f MakefileTest clean
 
 destroy: clean
-	rm -rf $(DOCDIR) $(LIBDIR)
+	$(MAKE) -f MakefileAuD destroy
+	$(MAKE) -f MakefileTest destroy
 
 doc: $(SRC) $(INC) | $(DOCDIR)
 	doxygen
 
-test: $(EXE)
+test: $(TST)
 
-# create archive 
-$(OUT): $(OBJ)
-	ar -cq $@ $(OBJ)
+# create library archive
+$(ARC):
+	$(MAKE) -f MakefileAuD all
 
-$(EXE): $(TOBJ) $(OUT)
-	$(CXX) $(CXXFLAGS) $^ $(LXXFLAGS) -o $@
-
-# .o file
-$(OBJDIR)%.o: $(SRCDIR)%.c | $(OBJDIR)
-	$(CC) $(CFLAGS) -c $< -o $@
-
-# .opp file
-$(OBJDIR)%.opp: $(TSTDIR)%.cpp | $(OBJDIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
--include $(DEP)
-
-# .d file
-$(OBJDIR)%.d: $(SRCDIR)%.c $(EXT) | $(OBJDIR)
-	$(CC) -MM $< -MT $(subst .d,.o,$@) -MF $@
-
-# .dpp file
-$(OBJDIR)%.dpp: $(TSTDIR)%.cpp $(EXT) | $(OBJDIR)
-	$(CXX) -MM $< -MT $(subst .dpp,.opp,$@) > $@
+# create unit test executable
+$(TST):
+	$(MAKE) -f MakefileTest all
 
 # folders
-$(OBJDIR) $(DOCDIR) $(LIBDIR):
+$(DOCDIR):
 	mkdir $@
-
-# external files
-$(LIBDIR)catch.hpp: | $(LIBDIR)
-	wget -q "https://raw.githubusercontent.com/philsquared/Catch/master/single_include/catch.hpp" -O $@
 

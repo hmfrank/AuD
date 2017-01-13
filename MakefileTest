@@ -1,0 +1,62 @@
+EXE = utest
+
+SRCDIR = tst/
+OBJDIR = bin/
+LIBDIR = lib/
+
+# stuff to download first
+DNL = $(LIBDIR)catch.hpp
+
+# include directories
+INC = $(LIBDIR)
+
+# libraries to link
+LIBS = libaud.a
+
+# source and object files for executable
+SRC = $(wildcard $(SRCDIR)*.cpp)
+OBJ = $(patsubst $(SRCDIR)%.cpp, $(OBJDIR)%.opp, $(SRC))
+DEP = $(patsubst $(SRCDIR)%.cpp, $(OBJDIR)%.dpp, $(SRC))
+
+# C++ compiler and linker flags
+CXX = g++
+CXXFLAGS = -std=c++11 $(patsubst %, -I %, $(INC)) -Wall -Wextra
+LXXFLAGS =
+
+# phony targets
+.PHONY: all clean destroy
+
+all: $(EXE)
+
+clean:
+	rm -rf $(OUT) $(EXE) $(OBJDIR)
+
+destroy: clean
+	rm -rf $(LIBDIR)
+
+# link executable
+$(EXE): $(OBJ) $(LIBS)
+	$(CXX) $(CXXFLAGS) $^ $(LXXFLAGS) -o $@
+
+# .opp file
+$(OBJDIR)%.opp: $(SRCDIR)%.cpp $(DNL) | $(OBJDIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+-include $(DEP)
+
+# .dpp file
+$(OBJDIR)%.dpp: $(SRCDIR)%.cpp | $(OBJDIR)
+	$(CXX) -MM $< -MT $(subst .dpp,.opp,$@) > $@
+	
+# build libraries
+libaud.a:
+	$(MAKE) -f MakefileAuD all
+
+# folders
+$(OBJDIR) $(LIBDIR):
+	mkdir $@
+
+# download external sources
+$(LIBDIR)catch.hpp: | $(LIBDIR)
+	wget -q "https://raw.githubusercontent.com/philsquared/Catch/master/single_include/catch.hpp" -O $@
+

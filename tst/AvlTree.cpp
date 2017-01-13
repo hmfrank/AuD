@@ -1,13 +1,17 @@
-#include "../lib/catch.hpp"
+#include <catch.hpp>
 
 extern "C"
 {
+#include <stddef.h>
 #include "../inc/AvlTree.h"
 }
 
 int compare(const void *a, const void *b)
 {
-	return (int)a - (int)b;
+	ptrdiff_t d = (const char*)a - (const char *)b;
+
+	if (d < 0) return -1;
+	else return d > 0;
 }
 
 TEST_CASE("avl tree contains, delete, insert, is empty", "[inc/AvlTree.h/avlContains, inc/AvlTree.h/avlDelete, inc/AvlTree.h/avlInsert, inc/AvlTree.h/avlIsEmpty]")
