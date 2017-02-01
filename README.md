@@ -3,6 +3,7 @@ This is a C library that contains various implementations of interesting algorit
 
 ## Contents
 * [AVL Tree](src/AvlTree.h)
+* [HyperLogLog](src/HyperLogLog.h)
 
 ## Makefile targets
 ### `make all`
