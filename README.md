@@ -2,8 +2,8 @@
 This is a C library that contains various implementations of interesting algorithms and data structures.
 
 ## Contents
-* [AVL Tree](src/AvlTree.h)
-* [HyperLogLog](src/HyperLogLog.h)
+* [AVL Tree](inc/AvlTree.h)
+* [HyperLogLog](inc/HyperLogLog.h)
 
 ## Makefile targets
 ### `make all`
@@ -25,3 +25,8 @@ Deletes all build files (object files and executables).
 ### `make destroy`
 Deletes everything make has ever created (includes downloaded libraries and documentation). After running this command,
 your repo should look as if it was freshly cloned from Github.
+
+## Usage
+Include the headers in the _inc/_ folder and link the archive _libaud.a_ (`make all`) to your project.
+
+Link with `-lm`.
