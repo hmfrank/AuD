@@ -12,6 +12,7 @@ SRC = $(wildcard $(SRCDIR)*.c)
 
 all: $(ARC)
 
+
 clean:
 	rm -rf $(ARC) $(TST)
 	$(MAKE) -f MakefileAuD clean
@@ -21,7 +22,7 @@ destroy: clean
 	$(MAKE) -f MakefileAuD destroy
 	$(MAKE) -f MakefileTest destroy
 
-doc: $(SRC) $(INC) | $(DOCDIR)
+doc: $(SRC) $(INC) Doxyfile | $(DOCDIR)
 	doxygen
 
 test: $(TST)

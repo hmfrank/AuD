@@ -21,7 +21,7 @@ DEP = $(patsubst $(SRCDIR)%.cpp, $(OBJDIR)%.dpp, $(SRC))
 # C++ compiler and linker flags
 CXX = g++
 CXXFLAGS = -std=c++11 $(patsubst %, -I %, $(INC)) -Wall -Wextra
-LXXFLAGS =
+LXXFLAGS = -lm
 
 # phony targets
 .PHONY: all clean destroy

@@ -10,7 +10,7 @@ DEP = $(patsubst $(SRCDIR)%.c, $(OBJDIR)%.d, $(SRC))
 
 # C compiler flags
 CC = gcc
-CFLAGS = -std=c99 -Wall -Wextra -Werror
+CFLAGS = -std=c99 -mbmi -Wall -Wextra -Werror
 
 # phony targets
 .PHONY: all clean destroy
