@@ -47,7 +47,7 @@ $(OBJDIR)%.opp: $(SRCDIR)%.cpp $(DNL) | $(OBJDIR)
 # .dpp file
 $(OBJDIR)%.dpp: $(SRCDIR)%.cpp | $(OBJDIR)
 	$(CXX) -MM $< -MT $(subst .dpp,.opp,$@) > $@
-	
+
 # build libraries
 libaud.a:
 	$(MAKE) -f MakefileAuD all

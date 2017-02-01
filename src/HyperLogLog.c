@@ -5,9 +5,6 @@
 #include <x86intrin.h>
 #include "../inc/HyperLogLog.h"
 
-// for debugging TODO: remove later
-#include <stdio.h>
-
 /**
  * @file HyperLogLog.c
  *
@@ -18,8 +15,6 @@
  */
 
 // TODO: cover the case that bit manipulation instructions aren't available
-// TODO: add correction factors
-// TODO: comment
 
 #if CHAR_BIT != 8
 #error Fuck it! Get a normal computer, dude!
@@ -80,19 +75,22 @@ static double getAlpha(unsigned char b)
  */
 static size_t getDataSize(unsigned char r, unsigned char b)
 {
+	// number of registers
 	size_t result = (size_t)1 << b;
 
 	switch (r)
 	{
-		case SMALL:
+		case SMALL:// 4 bit per register
 			result = max(result, 2);
 			result /= 2;
 			break;
-		case MEDIUM:
+		case MEDIUM: // 6 bit per register
 			result = max(result, 4);
 			result /= 4;
 			result *= 3;
-			result += 1; // each block is 3 bytes big, but we're accessing them through uint32_t, so we need an extra byte at end to prevent segfaults
+			// each block is 3 bytes big, but we're accessing them through uint32_t, so we need an extra byte at end to
+			// prevent segfaults
+			result += 1;
 			break;
 	}
 
@@ -109,13 +107,24 @@ static inline size_t getFirstBBits(size_t x, size_t b)
 	return x & ((1 << b) - 1);
 }
 
+/**
+ * Returns the content of the `index`th 6-bits in `block`.
+ */
 static inline uint8_t getMediumReg(uint32_t block, unsigned char index)
 {
 	return (uint8_t)( (block & (0x3F << index * 6)) >> index * 6 );
 }
 
 /**
- * Returns the one-based index of the rightmost 1-bit in `buffer`.
+ * Returns the content of the `index`th 4 bit in `block`.
+ */
+static inline uint8_t getSmallReg(uint8_t block, unsigned char index)
+{
+	return (uint8_t)( (block & (0xF << index * 4)) >> index * 4 );
+}
+
+/**
+ * Returns the one-based index of the least significant set bit in `buffer`.
  */
 static uint8_t rho(size_t r, void *buffer)
 {
@@ -162,17 +171,18 @@ static uint8_t rho(size_t r, void *buffer)
 	}
 }
 
+/**
+ * Sets the `index`th 6 bit of `block` to `reg`.
+ */
 static inline void setMediumReg(uint32_t *block, uint8_t reg, unsigned char index)
 {
 	*block &= ~(0x3F << index * 6);
 	*block |= reg << index * 6;
 }
 
-static inline uint8_t getSmallReg(uint8_t block, unsigned char index)
-{
-	return (uint8_t)( (block & (0xF << index * 4)) >> index * 4 );
-}
-
+/**
+ * Sets the `index`th 4 bit of block to `reg`.
+ */
 static inline void setSmallReg(uint8_t *block, uint8_t reg, unsigned char index)
 {
 	*block &= ~(0xF << index * 4);
