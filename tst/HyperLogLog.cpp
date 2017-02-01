@@ -3,7 +3,7 @@
 
 extern "C"
 {
-#include "../src/HyperLogLog.h"
+#include "../inc/HyperLogLog.h"
 }
 
 void hash(void *item, size_t h, void *buffer)

@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <x86intrin.h>
-#include "HyperLogLog.h"
+#include "../inc/HyperLogLog.h"
 
 // for debugging TODO: remove later
 #include <stdio.h>
