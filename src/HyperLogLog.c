@@ -5,6 +5,9 @@
 #include <x86intrin.h>
 #include "HyperLogLog.h"
 
+// for debugging TODO: remove later
+#include <stdio.h>
+
 /**
  * @file HyperLogLog.c
  *
@@ -56,6 +59,20 @@ static inline uint8_t maxb(uint8_t a, uint8_t b)
 static inline uint8_t minb(uint8_t a, uint8_t b)
 {
 	return a < b ? a : b;
+}
+
+/**
+ * Calculates the alpha value that is needed for the raw estimate (see paper).
+ */
+static double getAlpha(unsigned char b)
+{
+	switch (b)
+	{
+		case 0 ... 4: return 0.673;
+		case 5: return 0.697;
+		case 6: return 0.709;
+		default: return 0.7213 / (1 + 1.079 / pow(2, b));
+	}
 }
 
 /**
@@ -226,7 +243,7 @@ int hllInit(struct HyperLogLog *this, unsigned char r, unsigned char b, void (*h
 	if (r != SMALL && r != MEDIUM && r != LARGE)
 		return 2;
 
-	if (b >= sizeof(size_t) * CHAR_BIT)
+	if (b < 4 || b >= sizeof(size_t) * CHAR_BIT)
 		return 3;
 	if (r == SMALL && b < 1)
 		return 3;
@@ -274,7 +291,7 @@ void hllAdd(struct HyperLogLog *this, void *item)
 	char buffer[sizeof(size_t) + tzcnt_length];
 	void *hash = buffer;
 
-	this->hash(item, sizeof(hash), hash);
+	this->hash(item, sizeof(buffer), hash);
 
 	size_t reg_index = *(size_t *)(hash + tzcnt_length);
 	reg_index = getFirstBBits(reg_index, this->b);
@@ -288,8 +305,17 @@ double hllCount(struct HyperLogLog *this)
 		return NAN;
 
 	double sum = 0;
+	size_t n_empty_regs = 0;
 	size_t n_bytes = getDataSize(this->r, this->b);
 	size_t byte_index = 0;
+
+	inline void countRegister(uint8_t reg)
+	{
+		sum += pow(2, -reg);
+
+		if (reg == 0)
+			n_empty_regs++;
+	}
 
 	while (byte_index < n_bytes)
 	{
@@ -302,16 +328,16 @@ double hllCount(struct HyperLogLog *this)
 				sblock = *(uint8_t*)(this->data + byte_index);
 
 				for (unsigned char i = 0; i < 2; i++)
-					sum += pow(2, -getSmallReg(sblock, i));
+					countRegister(getSmallReg(sblock, i));
 				break;
 			case MEDIUM:
 				mblock = *(uint32_t*)(this->data + byte_index);
 
 				for (unsigned char i = 0; i < 4; i++)
-					sum += pow(2, -getMediumReg(mblock, i));
+					countRegister(getMediumReg(mblock, i));
 				break;
 			case LARGE:
-				sum += pow(2, -*(uint8_t*)(this->data + byte_index));
+				countRegister(*(uint8_t*)(this->data + byte_index));
 				break;
 			default:
 				return NAN;
@@ -330,6 +356,14 @@ double hllCount(struct HyperLogLog *this)
 		}
 	}
 
-	// raw hyperloglog result (needs correction in some cases)
-	return 1 / sum;
+	size_t m = (size_t)1 << this->b;
+	double alpha = getAlpha(this->b);
+	double raw = alpha * m * m / sum;
+
+	if (raw <= 5 / 2 * m)
+	{
+		raw = n_empty_regs > 0 ? m * log((double)m / n_empty_regs) : 0;
+	}
+
+	return raw;
 }

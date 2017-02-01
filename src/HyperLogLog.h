@@ -27,7 +27,7 @@ enum HyperLogLogRegisterSize
  * \f$ O(log(log(c)) \f$, where \f$c\f$ is the maximum number of items in the set.
  *
  * In this documentation, I'll explain what you need to know to _use_ this counter.
- * If you're interested in how it _works_, take a look at the Wikipedia articles or at the source code.
+ * If you're interested in how it _works_, take a look at the paper, the Wikipedia articles or at the source code.
  *
  * There are two main parameters that influence how the counter performs:
  * the **register size** \f$r\f$ (in bits) and the **number of registers** \f$m\f$, with

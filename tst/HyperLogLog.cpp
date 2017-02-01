@@ -20,7 +20,7 @@ void hash(void *item, size_t h, void *buffer)
 
 int isClose(double x, double y, double error)
 {
-	return x > y - y * error && x < y + y * error;
+	return x >= y - y * error && x <= y + y * error;
 }
 
 TEST_CASE("HyperLogLog", "[src/HyperLogLog.h]")
@@ -36,23 +36,41 @@ TEST_CASE("HyperLogLog", "[src/HyperLogLog.h]")
 
 	REQUIRE(std::isnan(hllCount(NULL)));
 
-	hllAdd(&set, (void*)0);
-	REQUIRE(isClose(hllCount(&set), 1, 0.026));
+	double sum = 0;
+	double avg = 0;
 
-	for (int i = 0; i < 1000000; i++)
+	REQUIRE(hllCount(&set) == 0);
+
+	for (int i = 1; i <= 100; i++)
+	{
 		hllAdd(&set, (void*)i);
+		sum += (hllCount(&set) - i) / i;
+	}
+	avg = sum / 100;
+	REQUIRE(avg <= 0.026);
 
-	REQUIRE(isClose(hllCount(&set), 1000000, 0.026));
-
-	for (int i = 0; i < 10000; i++)
+	for (int i = 101; i <= 1000; i++)
+	{
 		hllAdd(&set, (void*)i);
+		sum += (hllCount(&set) - i) / i;
+	}
+	avg = sum / 1000;
+	REQUIRE(avg <= 0.026);
 
-	REQUIRE(isClose(hllCount(&set), 1000000, 0.026));
-
-	for (int i = 1000000; i < 10001000; i++)
+	for (int i = 1001; i <= 10000; i++)
+	{
 		hllAdd(&set, (void*)i);
+		sum += (hllCount(&set) - i) / i;
+	}
+	avg = sum / 10000;
+	REQUIRE(avg <= 0.026);
 
-	REQUIRE(isClose(hllCount(&set), 1001000, 0.026));
+	// adding the same items again should not count
+	for (int i = 0; i < 1000; i++)
+	{
+		hllAdd(&set, (void*)i);
+	}
+	REQUIRE(hllCount(&set) <= 10300);
 
 	hllFree(&set);
 }
