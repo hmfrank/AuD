@@ -99,7 +99,7 @@ struct HyperLogLog
 	 * @param h: How many hash bytes the function shall generate.
 	 * @param buffer: points the buffer to store the hash in.
 	 */
-	void (*hash)(void *item, size_t h, void *buffer);
+	void (*hash)(const void *item, size_t h, void *buffer);
 
 	/**
 	 * Points to the actual data.
@@ -125,7 +125,7 @@ struct HyperLogLog
  *
  *  @see HyperLogLog
  */
-int hllInit(struct HyperLogLog *_this, unsigned char r, unsigned char b, void (*hash)(void*, size_t, void*));
+int hllInit(struct HyperLogLog *_this, unsigned char r, unsigned char b, void (*hash)(const void*, size_t, void*));
 
 /**
  * Frees all the memory used by a HyperLogLog structure. You can not use the struct after you passed it to this function.
@@ -143,7 +143,7 @@ void hllFree(struct HyperLogLog *_this);
  * @param item The item to add. The pointer is not needed after this function returns, so you can
  * free or do anything to it, without concern.
  */
-void hllAdd(struct HyperLogLog *_this, void *item);
+void hllAdd(struct HyperLogLog *_this, const void *item);
 
 /**
  * Counts the number of unique items added to the set.

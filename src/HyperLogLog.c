@@ -245,7 +245,7 @@ static void updateReg(void *blocks, unsigned char r, size_t index, uint8_t n_tai
 
 
 
-int hllInit(struct HyperLogLog *this, unsigned char r, unsigned char b, void (*hash)(void *, size_t, void *))
+int hllInit(struct HyperLogLog *this, unsigned char r, unsigned char b, void (*hash)(const void *, size_t, void *))
 {
 	if (this == NULL)
 		return 1;
@@ -282,7 +282,7 @@ void hllFree(struct HyperLogLog *this)
 	}
 }
 
-void hllAdd(struct HyperLogLog *this, void *item)
+void hllAdd(struct HyperLogLog *this, const void *item)
 {
 	if (this == NULL)
 		return;

@@ -1,4 +1,3 @@
-#include <cmath>
 #include <catch.hpp>
 
 extern "C"
@@ -6,7 +5,7 @@ extern "C"
 #include "../inc/HyperLogLog.h"
 }
 
-void hash(void *item, size_t h, void *buffer)
+void hash(const void *item, size_t h, void *buffer)
 {
 	char *char_ptr = (char*)buffer;
 
