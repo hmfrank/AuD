@@ -5,8 +5,6 @@
 !.gitignore
 !CMakeLists.txt
 !Makefile
-!MakefileAuD
-!MakefileTest
 !README.md
 !inc/
 !inc/*
