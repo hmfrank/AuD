@@ -25,7 +25,7 @@ DEP = $(patsubst $(SRCDIR)%.c, $(OBJDIR)%.d, $(patsubst $(TSTDIR)%.cpp, $(OBJDIR
 
 # C compiler flags
 CC = gcc
-CFLAGS = -std=c99 -mbmi -Wall -Wextra -Werror
+CFLAGS = -std=c99 -Wall -Wextra -Werror
 
 # C++ compiler and linker flags
 CXX = g++
@@ -58,7 +58,8 @@ $(TST): $(TOBJ) $(ARC)
 
 # .o file
 $(OBJDIR)%.o: $(SRCDIR)%.c | $(OBJDIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@ -mbmi ||\
+	$(CC) $(CFLAGS) -c $< -o $@ -D NO_BMI
 
 # .opp file
 $(OBJDIR)%.opp: $(TSTDIR)%.cpp $(EXT) | $(OBJDIR)

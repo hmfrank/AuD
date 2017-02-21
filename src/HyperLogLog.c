@@ -2,35 +2,21 @@
 #include <math.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <x86intrin.h>
 #include "../inc/HyperLogLog.h"
+#include "../inc/tzcnt.h"
 
 /**
  * @file HyperLogLog.c
  *
  * Contains the implementations of the functions defined in HyperLogLog.h, as well as some static helper functions.
  *
- * **Compile with `-mbmi`**<br/>
+ * **Compile with `-mbmi` or if that doesn't work with `-D NO_BMI`**<br/>
  * **Link with `-lm`**
  */
-
-// TODO: cover the case that bit manipulation instructions aren't available
 
 #if CHAR_BIT != 8
 #error Fuck it! Get a normal computer, dude!
 #endif
-
-#define TZCNT16(x) __tzcnt_u16(x)
-#define TZCNT64(x) __tzcnt_u64(x)
-
-#ifndef __x86_64__
-static inline uint64_t __tzcnt_u64(uint64_t x)
-{
-	return x & 0x00000000FFFFFFFF ? __tzcnt_u32(x) : __tzcnt_u32((uint32_t)(x >> 32)) + 32;
-}
-#endif
-
-
 
 /**
  * Returns the greatest value of `a` and `b`.
